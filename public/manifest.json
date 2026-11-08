@@ -1,0 +1,56 @@
+{
+  "name": "Vereadômetro Juazeiro | Fiscalização Cidadã",
+  "short_name": "Vereadômetro",
+  "description": "Auditoria cidadã e fiscalização dos 21 vereadores de Juazeiro do Norte / CE. Gastos, salários, assessores e sessões da câmara.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["government", "news", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ranking dos 21 Vereadores",
+      "short_name": "Ranking",
+      "description": "Veja quem mais custa aos cofres municipais",
+      "url": "/#ranking",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Sessões e Discursos",
+      "short_name": "Sessões",
+      "description": "Transcrições e análises das sessões da Câmara",
+      "url": "/#sessoes",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

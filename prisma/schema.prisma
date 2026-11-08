@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Vereador {
+  id               String            @id @default(cuid())
+  slug             String            @unique
+  nomeCompleto     String
+  nomeParlamentar  String
+  partido          String
+  fotoUrl          String
+  biografia        String?
+  status           String            @default("ATIVO") // ATIVO, LICENCIADO
+  telefoneGabinete String?
+  emailGabinete    String?
+  instagram        String?
+  votosUltimaEleicao Int             @default(0)
+  
+  // Métricas Consolidadas para Alta Performance de Consulta
+  salarioBase      Float             @default(18000.00)
+  totalAssessores  Int               @default(0)
+  totalGastoMes    Float             @default(0.00)
+  totalGastoAno    Float             @default(0.00)
+  totalProjetos    Int               @default(0)
+  taxaPresenca     Float             @default(95.0)
+  custoPorProjeto  Float             @default(0.00)
+  rankingGeral     Int               @default(1)
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  gastos           GastoMensal[]
+  assessores       Assessor[]
+  projetos         Projeto[]
+  inscricoes       InscricaoAlerta[]
+
+  @@index([rankingGeral])
+  @@index([partido])
+}
+
+model GastoMensal {
+  id                   String    @id @default(cuid())
+  vereadorId           String
+  vereador             Vereador  @relation(fields: [vereadorId], references: [id], onDelete: Cascade)
+  ano                  Int
+  mes                  Int
+  salarioBruto         Float     @default(18000.00)
+  salarioLiquido       Float     @default(13500.00)
+  verbaGabinete        Float     @default(0.00) // CEAP / Gabinete
+  diarias              Float     @default(0.00)
+  totalAssessoresValor Float     @default(0.00)
+  outrosCustos         Float     @default(0.00)
+  totalMes             Float     @default(0.00)
+  dataCompetencia      DateTime
+
+  createdAt            DateTime  @default(now())
+
+  @@unique([vereadorId, ano, mes])
+  @@index([ano, mes])
+}
+
+model Assessor {
+  id               String    @id @default(cuid())
+  vereadorId       String
+  vereador         Vereador  @relation(fields: [vereadorId], references: [id], onDelete: Cascade)
+  nome             String
+  cargo            String
+  remuneracaoBruta Float     @default(3000.00)
+  lotacao          String    @default("Gabinete Parlamentar")
+  dataNomeacao     DateTime?
+  ativo            Boolean   @default(true)
+
+  createdAt        DateTime  @default(now())
+
+  @@index([vereadorId])
+}
+
+model Projeto {
+  id               String    @id @default(cuid())
+  vereadorId       String
+  vereador         Vereador  @relation(fields: [vereadorId], references: [id], onDelete: Cascade)
+  tipo             String    // PROJETO_DE_LEI, REQUERIMENTO, MOCAO, EMENDA
+  numero           String
+  ano              Int
+  titulo           String
+  ementa           String
+  status           String    @default("TRAMITANDO") // TRAMITANDO, APROVADO, ARQUIVADO
+  dataApresentacao DateTime
+  linkOficial      String?
+
+  createdAt        DateTime  @default(now())
+
+  @@index([vereadorId])
+  @@index([tipo])
+}
+
+model Lead {
+  id                 String             @id @default(cuid())
+  nome               String
+  whatsapp           String             @unique
+  ddd                String             @default("88")
+  bairro             String
+  email              String?
+  optinWhatsapp      Boolean            @default(true)
+  optinAlertasBairro Boolean            @default(true)
+  ipOrigem           String?
+  status             String             @default("ATIVO")
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  inscricoes         InscricaoAlerta[]
+  assinaturas        AssinaturaProjeto[]
+  disparos           DisparoLog[]
+
+  @@index([bairro])
+  @@index([whatsapp])
+}
+
+model InscricaoAlerta {
+  id          String    @id @default(cuid())
+  leadId      String
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  vereadorId  String?
+  vereador    Vereador? @relation(fields: [vereadorId], references: [id], onDelete: Cascade)
+  seguirTodos Boolean   @default(false)
+  ativo       Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+
+  @@unique([leadId, vereadorId])
+  @@index([leadId])
+  @@index([vereadorId])
+}
+
+model AssinaturaProjeto {
+  id              String    @id @default(cuid())
+  leadId          String?
+  lead            Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  nomeCompleto    String
+  tituloEleitor   String    @unique
+  zonaEleitoral   String    // Zona 28 ou 119 em Juazeiro do Norte
+  secaoEleitoral  String
+  bairro          String
+  whatsapp        String
+  aceitouTermos   Boolean   @default(true)
+  ipAddress       String?
+  statusValidacao String    @default("VALIDADO")
+  dataAssinatura  DateTime  @default(now())
+
+  createdAt       DateTime  @default(now())
+
+  @@index([zonaEleitoral, secaoEleitoral])
+  @@index([bairro])
+}
+
+model DisparoLog {
+  id              String    @id @default(cuid())
+  leadId          String?
+  lead            Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  tipo            String    // EXTRATO_MENSAL, ALERTA_PROJETO, ASSINATURA_CONFIRMADA
+  canal           String    @default("WHATSAPP")
+  destino         String
+  payloadMensagem String
+  statusEnvio     String    // ENVIADO, FALHA, SIMULADO
+  respostaApi     String?
+  enviadoEm       DateTime  @default(now())
+
+  @@index([leadId])
+  @@index([statusEnvio])
+}
+
+model SessaoPlenaria {
+  id                  String   @id @default(cuid())
+  videoId             String   @unique
+  numeroSessao        String?  // Ex: "38ª Sessão Ordinária", "Audiência Pública"
+  tipoSessao          String   @default("ORDINARIA") // ORDINARIA, EXTRAORDINARIA, SOLENE, AUDIENCIA_PUBLICA
+  titulo              String
+  dataSessao          DateTime
+  dataFormatada       String?  // Ex: "19 de Outubro de 2026"
+  horario             String   @default("09:00")
+  youtubeUrl          String
+  resumo              String?
+  climaPolitico       String?
+  vereadoresPresentes String?  // JSON string com slugs dos vereadores identificados
+  temasDiscutidos     String?  // JSON string com temas e termos-chave
+  transcricaoJson     String?  // JSON string com array de trechos com timestamps e tags
+  totalFalas          Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  @@index([dataSessao])
+  @@index([tipoSessao])
+}
