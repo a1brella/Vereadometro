@@ -1,26 +1,501 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ─────────────────────────────────────────────────────────────
+   VEREADÔMETRO — "Dossiê Juazeiro"
+   A colagem emoldura; o número é o protagonista.
+   Cores da bandeira de Juazeiro do Norte sobre papel.
+   ───────────────────────────────────────────────────────────── */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Papel kraft de pasta de arquivo, tinta preta, cores da bandeira e da caneta de revisão */
+  --color-paper: #e8dcc6;
+  --color-paper-2: #ddd0b8;
+  --color-paper-3: #cdbfa5;
+  --color-sheet: #f1e8d6; /* folha mais clara colada sobre o kraft */
+  --color-ink: #151311;
+  --color-ink-2: #352f28; /* texto de apoio: 11:1 sobre o kraft */
+  --color-mute: #5c5244; /* metadados: 5.4:1 sobre o kraft */
+  --color-rule: #b9ab92;
+  --color-red: #c8221a; /* caneta de revisão / leões do brasão — 4.7:1 sobre kraft */
+  --color-red-deep: #9b160f;
+  --color-blue: #1d3fa8; /* azul da bandeira */
+  --color-blue-deep: #12297a;
+  --color-yellow: #f2c12e; /* marca-texto / amarelo da bandeira */
+  --color-pink: #e8dcc6;
+  --color-leaf: #23633a;
+
+  --font-sans: var(--font-text);
+  --font-display: var(--font-anton);
+  --font-type: var(--font-type);
+  --font-hand: var(--font-hand);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Tokens do shadcn/ui mapeados para a identidade do Vereadômetro */
+  --color-background: #e8dcc6;
+  --color-foreground: #151311;
+  --color-card: #f1e8d6;
+  --color-card-foreground: #151311;
+  --color-popover: #f1e8d6;
+  --color-popover-foreground: #151311;
+  --color-primary: #c8221a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #151311;
+  --color-secondary-foreground: #f1e8d6;
+  --color-muted: #ddd0b8;
+  --color-muted-foreground: #5c5244;
+  --color-accent: #f2c12e;
+  --color-accent-foreground: #151311;
+  --color-destructive: #c8221a;
+  --color-border: #151311;
+  --color-input: #151311;
+  --color-ring: #1d3fa8;
+
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 4px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --paper: #e8dcc6;
+  --ink: #151311;
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  /* manchas de fibra do papel kraft */
+  --fiber: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.012 .03' numOctaves='4' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .9 -.35'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+/* Números alinham em coluna */
+.tabular,
+td,
+dd {
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--color-yellow);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-blue);
+  outline-offset: 3px;
+}
+
+/* Grão de papel: textura sutil, abaixo do limiar que compromete o texto */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: var(--grain), var(--fiber);
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+}
+
+/* ── Tipografia ─────────────────────────────────────────── */
+@utility font-display {
+  font-family: var(--font-anton), "Impact", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 0.92;
+}
+
+/* Máquina de escrever */
+@utility font-type {
+  font-family: var(--font-type), "Courier New", monospace;
+  letter-spacing: -0.01em;
+}
+
+/* Bilhete escrito à mão */
+@utility font-hand {
+  font-family: var(--font-hand), "Comic Sans MS", cursive;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+}
+
+/* Rótulo curto (dado, legenda). Legível: 13px, sem caixa-alta espaçada. */
+@utility label {
+  font-family: var(--font-text), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+}
+
+/* ── Sistema de layout ────────────────────────────────
+   Um container, um ritmo vertical, uma escala de título de seção. */
+.page {
+  width: 100%;
+  /* O site ocupa a largura do viewport; só em telas muito largas há um teto */
+  max-width: 1920px;
+  margin-inline: auto;
+  /* Respiro lateral fluido e enxuto: 20px no celular, ~43px em 1440px, até 64px */
+  padding-inline: clamp(1.25rem, 3vw, 4rem);
+}
+.section-y {
+  padding-block: 4rem;
+}
+@media (min-width: 1024px) {
+  .section-y {
+    padding-block: 6rem;
+  }
+}
+.h-section {
+  font-family: var(--font-anton), "Impact", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.92;
+  font-size: clamp(42px, 6.4vw, 92px);
+  text-wrap: balance;
+}
+
+/* ── Páginas empilhadas ───────────────────────────────
+   Cada seção é uma folha: fica presa quando termina de passar
+   e a próxima sobe por cima, como páginas sobrepostas.
+   O "top" de cada folha é calculado em JS (useStackedPages)
+   para que seções mais altas que a tela rolem inteiras antes de prender. */
+.stack {
+  position: sticky;
+  top: 64px;
+  isolation: isolate;
+  /* Cada folha tem seu papel; o grão e a fibra vêm do overlay global do body */
+  background-color: var(--sheet-bg, var(--paper));
+  background-image: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(92, 60, 18, 0.14) 100%);
+  box-shadow: 0 -1px 0 rgba(21, 19, 17, 0.12), 0 -18px 36px -18px rgba(21, 19, 17, 0.55);
+}
+
+/* Papéis da pilha */
+.paper-kraft {
+  --sheet-bg: #e8dcc6;
+}
+.paper-yellow {
+  --sheet-bg: #eebf2c; /* amarelo de cartaz, forte */
+}
+.paper-news {
+  --sheet-bg: #f0eadc; /* jornal claro: a lista longa respira */
+}
+.paper-rose {
+  --sheet-bg: #f19bb6; /* cartaz rosa, forte */
+}
+.paper-sky {
+  --sheet-bg: #cfdbea; /* formulário azul-claro */
+}
+.paper-blue {
+  --sheet-bg: #1d3fa8; /* azul da bandeira chapado, com a textura do papel por cima */
+}
+.paper-brown {
+  --sheet-bg: #d7c39f; /* papel pardo */
+}
+main > .stack:first-child {
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stack {
+    position: relative;
+    top: auto !important;
+  }
+}
+
+/* ── Peças de colagem ───────────────────────────────────── */
+
+/* Marca-texto amarelo (cor sólida) */
+.marker {
+  background-image: linear-gradient(var(--color-yellow), var(--color-yellow));
+  background-repeat: no-repeat;
+  background-size: 100% 80%;
+  background-position: 0 65%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.15em;
+  margin: 0 -0.05em;
+}
+
+/* Fita adesiva */
+.tape {
+  position: absolute;
+  width: 88px;
+  height: 24px;
+  background: rgba(232, 226, 205, 0.82);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  clip-path: polygon(3% 0, 97% 4%, 100% 22%, 96% 46%, 100% 70%, 97% 100%, 2% 96%, 0 74%, 4% 50%, 0 26%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Carimbo (só em alertas pontuais) */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  border: 2px solid currentColor;
+  padding: 0.3em 0.6em;
+  font-family: var(--font-text), sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+/* Rótulo em tira de marca-texto (cabeçalhos curtos) */
+.tag-hl {
+  display: inline-block;
+  background: var(--color-yellow);
+  color: var(--ink);
+  padding: 0.12em 0.42em 0.06em;
+  clip-path: polygon(0.6% 6%, 99% 0, 100% 90%, 1.5% 100%);
+  rotate: -0.8deg;
+}
+/* Etiqueta de papel colado (bilhetes, legendas) */
+.tag-paper {
+  display: inline-block;
+  background: var(--color-sheet);
+  color: var(--ink);
+  padding: 0.35em 0.7em;
+  box-shadow: 0 1px 2px rgba(21, 19, 17, 0.25);
+}
+/* Foto P&B sobre fundo amarelo (retrato do vereador) */
+.duo-yellow {
+  position: relative;
+  background: var(--color-yellow);
+  overflow: hidden;
+  isolation: isolate;
+}
+.duo-yellow > img {
+  filter: grayscale(1) contrast(1.15);
+  mix-blend-mode: multiply;
+}
+/* Foto documental P&B com contraste de jornal */
+.bw {
+  filter: grayscale(1) contrast(1.2) brightness(1.02);
+}
+
+/* Papel rasgado (bordas) */
+.torn-b {
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 13px) no-repeat,
+    url("/collage/torn-edge.svg") bottom / 220px 14px repeat-x;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - 13px) no-repeat,
+    url("/collage/torn-edge.svg") bottom / 220px 14px repeat-x;
+}
+.torn-tb {
+  -webkit-mask: linear-gradient(#000 0 0) center / 100% calc(100% - 26px) no-repeat,
+    url("/collage/torn-edge-top.svg") top / 220px 14px repeat-x,
+    url("/collage/torn-edge.svg") bottom / 220px 14px repeat-x;
+  mask: linear-gradient(#000 0 0) center / 100% calc(100% - 26px) no-repeat,
+    url("/collage/torn-edge-top.svg") top / 220px 14px repeat-x,
+    url("/collage/torn-edge.svg") bottom / 220px 14px repeat-x;
+}
+
+/* Foto duotom azul — ganha cor no hover */
+.duo {
+  position: relative;
+  background: var(--color-blue);
+  overflow: hidden;
+  isolation: isolate;
+}
+.duo > img {
+  filter: grayscale(1) contrast(1.15) brightness(1.05);
+  mix-blend-mode: screen;
+  transition: filter 400ms ease-out, transform 600ms var(--ease-out-expo);
+}
+.group:hover .duo > img,
+.duo:hover > img {
+  filter: grayscale(0) contrast(1.05);
+  mix-blend-mode: normal;
+  transform: scale(1.04);
+}
+.duo-red {
+  background: var(--color-red);
+}
+
+/* Imagem tingida via máscara (xilogravura) */
+.ink-mask {
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* Papel sobre a mesa: folha um pouco mais clara que o fundo, sombra de contato curta */
+.sheet {
+  background: var(--color-sheet);
+  box-shadow: 0 1px 1px rgba(21, 19, 17, 0.18), 0 4px 10px rgba(21, 19, 17, 0.14);
+}
+
+/* ── Formulários ────────────────────────────────────────── */
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-text), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Chips / filtros */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 36px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  padding: 0.3em 0.75em;
+  font-family: var(--font-text), sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:hover {
+  background: var(--color-yellow);
+}
+.chip[data-active="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ── Movimento ──────────────────────────────────────────
+   O conteúdo é sempre visível por padrão.
+   • [data-intro]: entrada única no carregamento (hero).
+   • [data-reveal]: acompanha a rolagem via animation-timeline,
+     sem JavaScript; onde não houver suporte, nada muda.
+   ─────────────────────────────────────────────────────── */
+.line-mask {
+  display: block;
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-bottom: 0.04em;
+}
+.line-mask > span {
+  display: inline-block;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+@keyframes drop {
+  from {
+    opacity: 0;
+    translate: 0 -36px;
+    rotate: var(--r, -6deg);
+    scale: 1.05;
+  }
+}
+@keyframes lineup {
+  from {
+    translate: 0 105%;
+  }
+}
+@keyframes wipe {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+@keyframes mark {
+  from {
+    background-size: 0% 80%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-intro] {
+    animation: rise 800ms var(--ease-out-expo) var(--d, 0ms) both;
+  }
+  [data-intro="drop"] {
+    animation-name: drop;
+    animation-duration: 900ms;
+  }
+  [data-intro="clip"] {
+    animation-name: wipe;
+    animation-duration: 1000ms;
+  }
+  [data-intro="lines"] {
+    animation: none;
+  }
+  [data-intro="lines"] .line-mask > span {
+    animation: lineup 900ms var(--ease-out-expo) var(--d, 0ms) both;
+  }
+
+  @supports (animation-timeline: view()) {
+    [data-reveal] {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    [data-reveal="lines"] {
+      animation: none;
+    }
+    [data-reveal="lines"] .line-mask > span {
+      animation: lineup linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 80%;
+    }
+    [data-reveal="clip"] {
+      animation-name: wipe;
+      animation-range: entry 0% entry 80%;
+    }
+    .marker {
+      animation: mark linear both;
+      animation-timeline: view();
+      animation-range: entry 40% cover 35%;
+    }
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

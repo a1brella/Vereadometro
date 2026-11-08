@@ -1,21 +1,11 @@
+"use client";
+
 import React, { useState, useMemo } from "react";
-import {
-  X,
-  Search,
-  Tag,
-  Clock,
-  ExternalLink,
-  MessageSquare,
-  Copy,
-  Check,
-  Radio,
-  Sparkles,
-  Filter,
-  User,
-  BookOpen,
-  ListFilter,
-  Volume2,
-} from "lucide-react";
+import { Search, ExternalLink } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ModalShell } from "@/components/editorial/Editorial";
 
 export interface FalaSnippet {
   text: string;
@@ -311,43 +301,36 @@ export const SessaoDetailModal: React.FC<SessaoDetailModalProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl rounded-3xl border border-slate-700 bg-slate-900 p-5 sm:p-7 shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
-        {/* Botão Fechar */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition z-10 cursor-pointer"
-        >
-          <X className="w-5 h-5" />
-        </button>
+  const speakerTone = (spk: string, isCouncilor: boolean) =>
+    isCouncilor
+      ? "bg-blue text-paper border-blue"
+      : spk === "Mesa Diretora"
+      ? "bg-ink text-paper border-ink"
+      : "bg-pink text-ink border-ink";
 
+  return (
+    <ModalShell onClose={onClose} label={`Transcrição: ${sessao.titulo}`} className="max-w-5xl">
+      <div className="flex max-h-[92vh] flex-col">
         {/* Topo do Modal */}
-        <div className="border-b border-slate-800 pb-4 pr-10">
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="rounded-lg bg-red-500/20 border border-red-500/40 px-2.5 py-0.5 text-xs font-black text-red-400 uppercase tracking-wide flex items-center gap-1.5">
-              <Radio className="w-3.5 h-3.5 animate-pulse text-red-500" />
+        <div className="border-b-2 border-ink px-5 pb-4 pt-5 pr-12 sm:px-7">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="flex items-center gap-1.5 rounded-sm bg-red px-2.5 py-1 text-[13px] font-bold text-white">
               {sessao.numeroSessao || "Sessão Plenária"}
             </span>
             {sessao.dataFormatada && (
-              <span className="rounded-lg bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-300">
-                📅 {sessao.dataFormatada}
+              <span className="rounded-sm border-2 border-ink px-2 py-0.5 text-[13px] font-medium">
+                {sessao.dataFormatada}
               </span>
             )}
             {sessao.horario && (
-              <span className="rounded-lg bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-400">
-                ⏰ {sessao.horario}
-              </span>
+              <span className="rounded-sm border-2 border-ink px-2 py-0.5 text-[13px] font-medium">⏰ {sessao.horario}</span>
             )}
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-            {sessao.titulo}
-          </h2>
+          <h2 className="text-[clamp(24px,3vw,34px)] font-extrabold leading-[1.1] tracking-[-0.01em] text-ink">{sessao.titulo}</h2>
 
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-            <span className="flex items-center gap-1 text-slate-300">
-              <MessageSquare className="w-3.5 h-3.5 text-sky-400" />
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-[14px] text-ink-2">
+            <span className="flex items-center gap-1">
               {sessao.totalFalas.toLocaleString("pt-BR")} falas transcritas • {discursos.length} discursos organizados
             </span>
             <span>•</span>
@@ -355,265 +338,207 @@ export const SessaoDetailModal: React.FC<SessaoDetailModalProps> = ({
               href={sessao.youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-red-400 hover:text-red-300 font-semibold"
+              className="inline-flex items-center gap-1 font-semibold text-red underline decoration-2 underline-offset-4 hover:text-red-deep"
             >
               <span>Assistir transmissão oficial no YouTube</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="h-3 w-3" />
             </a>
           </div>
         </div>
 
-        {/* Resumo com IA & Clima Político */}
-        {sessao.resumo && (
-          <div className="my-3 rounded-2xl bg-slate-950/80 p-3.5 border border-slate-800 text-xs text-slate-200 leading-relaxed shrink-0">
-            <div className="flex items-center gap-1.5 font-bold text-emerald-400 uppercase tracking-wider text-[11px] mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Resumo Executivo da Sessão</span>
-            </div>
-            {sessao.resumo}
-          </div>
-        )}
-
-        {/* Barra de Filtros: Busca, Seletor de Modo, Oradores e Tags */}
-        <div className="py-2.5 border-b border-slate-800 shrink-0 space-y-2.5">
-          {/* Linha 1: Busca + Alternador de Visualização + Copiar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Pesquisar por assunto, vereador, palavra-chave (ex: UPA, asfalto, Saulo, Limoeiro)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-xl bg-slate-950 border border-slate-800 pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              {/* Alternador de Modo: Parágrafos Fluídos vs Linha por Linha */}
-              <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button
-                  onClick={() => setViewMode("discursos")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    viewMode === "discursos"
-                      ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Falas agrupadas em parágrafos contínuos e fluídos (leitura natural para humanos)"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>Modo Parágrafos</span>
-                </button>
-                <button
-                  onClick={() => setViewMode("linhas")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    viewMode === "linhas"
-                      ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Legendas fragmentadas linha por linha originais do YouTube"
-                >
-                  <ListFilter className="w-3.5 h-3.5" />
-                  <span>Linha por Linha</span>
-                </button>
+        <div className="flex min-h-0 flex-1 flex-col px-5 sm:px-7">
+          {/* Resumo com IA & Clima Político */}
+          {sessao.resumo && (
+            <div className="mt-4 shrink-0 rounded-sm bg-paper-2 p-3.5 text-[15px] leading-relaxed text-ink-2">
+              <div className="mb-1 flex items-center gap-1.5 text-[14px] font-bold text-ink">
+                <span>Resumo Executivo da Sessão</span>
               </div>
-
-              {/* Botão Copiar */}
-              <button
-                onClick={handleCopyTranscript}
-                disabled={(viewMode === "discursos" ? filteredDiscursos.length : filteredLinhas.length) === 0}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 px-3.5 py-2 text-xs font-semibold text-slate-200 transition cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-bold">Copiado!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Copiar Trechos</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Filtro 1: Oradores na Tribuna */}
-          {availableSpeakers.length > 0 && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
-                <User className="w-3 h-3 text-emerald-400" />
-                Orador:
-              </span>
-              <button
-                onClick={() => setSelectedSpeaker("TODOS")}
-                className={`shrink-0 rounded-xl px-2.5 py-1 text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                  selectedSpeaker === "TODOS"
-                    ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                    : "bg-slate-800/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60"
-                }`}
-              >
-                <span>Todos</span>
-                <span className="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">
-                  {speakerCounts["TODOS"] || 0}
-                </span>
-              </button>
-
-              {availableSpeakers.map((spk) => (
-                <button
-                  key={spk}
-                  onClick={() => setSelectedSpeaker(spk)}
-                  className={`shrink-0 rounded-xl px-2.5 py-1 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    selectedSpeaker === spk
-                      ? "bg-emerald-400 text-slate-950 font-bold shadow-md shadow-emerald-400/20"
-                      : "bg-slate-800/70 text-slate-300 hover:bg-slate-800 border border-slate-700/60"
-                  }`}
-                >
-                  <span>{spk}</span>
-                  <span className="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">
-                    {speakerCounts[spk] || 0}
-                  </span>
-                </button>
-              ))}
+              {sessao.resumo}
             </div>
           )}
 
-          {/* Filtro 2: Tags de Pautas / Temas */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
-              <Tag className="w-3 h-3 text-amber-400" />
-              Pauta:
-            </span>
-            <button
-              onClick={() => setSelectedTag("TODAS")}
-              className={`shrink-0 rounded-xl px-2.5 py-1 text-xs font-bold transition flex items-center gap-1 cursor-pointer ${
-                selectedTag === "TODAS"
-                  ? "bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20"
-                  : "bg-slate-800/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60"
-              }`}
-            >
-              <span>Todas</span>
-              <span className="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">
-                {tagCounts["TODAS"] || 0}
-              </span>
-            </button>
+          {/* Barra de Filtros: Busca, Seletor de Modo, Oradores e Tags */}
+          <div className="shrink-0 space-y-3 border-b-[1.5px] border-ink py-3">
+            {/* Linha 1: Busca + Alternador de Visualização + Copiar */}
+            <div className="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-end">
+              <label className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink" aria-hidden />
+                <Input
+                  type="search"
+                  aria-label="Pesquisar nas falas"
+                  placeholder="Pesquisar por assunto, vereador, palavra-chave (ex: UPA, asfalto, Saulo, Limoeiro)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </label>
 
-            {availableTags.map((t) => (
-              <button
-                key={t}
-                onClick={() => setSelectedTag(t)}
-                className={`shrink-0 rounded-xl px-2.5 py-1 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                  selectedTag === t
-                    ? "bg-amber-400 text-slate-950 font-bold shadow-md shadow-amber-400/20"
-                    : "bg-slate-800/70 text-slate-300 hover:bg-slate-800 border border-slate-700/60"
-                }`}
-              >
-                <span>{t}</span>
-                <span className="rounded-full bg-slate-950/40 px-1.5 py-0.2 text-[10px]">
-                  {tagCounts[t] || 0}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {/* Alternador de Modo: Parágrafos Fluídos vs Linha por Linha */}
+                <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "discursos" | "linhas")}>
+                  <TabsList>
+                    <TabsTrigger
+                      value="discursos"
+                      title="Falas agrupadas em parágrafos contínuos e fluídos (leitura natural para humanos)"
+                    >
+                      Modo Parágrafos
+                    </TabsTrigger>
+                    <TabsTrigger value="linhas" title="Legendas fragmentadas linha por linha originais do YouTube">
+                      Linha por Linha
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
 
-        {/* Lista de Discursos / Falas */}
-        <div className="flex-1 overflow-y-auto mt-3 pr-1 space-y-3">
-          {loading ? (
-            <div className="py-16 text-center text-xs text-slate-400">
-              Carregando transcrição detalhada da sessão...
-            </div>
-          ) : viewMode === "discursos" ? (
-            /* MODO DISCURSOS (PARÁGRAFOS HUMANOS FLUÍDOS) */
-            filteredDiscursos.length === 0 ? (
-              <div className="py-12 text-center rounded-2xl bg-slate-950/50 border border-slate-800">
-                <MessageSquare className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                <p className="text-xs font-semibold text-slate-400">
-                  Nenhum discurso encontrado com os filtros selecionados.
-                </p>
-                <p className="text-[11px] text-slate-500 mt-1">
-                  Tente redefinir o orador, selecionar outra pauta ou limpar o campo de busca.
-                </p>
+                {/* Botão Copiar */}
+                <Button
+                  onClick={handleCopyTranscript}
+                  disabled={(viewMode === "discursos" ? filteredDiscursos.length : filteredLinhas.length) === 0} variant="outline">
+                  {copied ? (
+                    <>
+                      <span className="text-leaf">Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Copiar Trechos</span>
+                    </>
+                  )}
+                </Button>
               </div>
-            ) : (
-              filteredDiscursos.map((d) => {
-                const spk = d.orador || "Mesa Diretora";
-                const isCouncilor =
-                  spk.includes("Professora") ||
-                  spk.includes("Jullian") ||
-                  spk.includes("Capitão") ||
-                  spk.includes("Felipe") ||
-                  spk.includes("Badú") ||
-                  spk.includes("Lukão");
+            </div>
 
-                return (
-                  <div
-                    key={d.id}
-                    className="group rounded-2xl border border-slate-800/90 bg-slate-950/70 p-4 hover:border-slate-700 hover:bg-slate-950 transition flex flex-col gap-2.5 shadow-sm"
+            {/* Filtro 1: Oradores na Tribuna */}
+            {availableSpeakers.length > 0 && (
+              <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1">
+                <span className="mr-1 flex shrink-0 items-center gap-1 text-[14px] font-semibold text-ink-2">
+                  Orador:
+                </span>
+                <button
+                  onClick={() => setSelectedSpeaker("TODOS")}
+                  data-active={selectedSpeaker === "TODOS"}
+                  className="chip shrink-0"
+                >
+                  <span>Todos</span>
+                  <span className="opacity-60">{speakerCounts["TODOS"] || 0}</span>
+                </button>
+
+                {availableSpeakers.map((spk) => (
+                  <button
+                    key={spk}
+                    onClick={() => setSelectedSpeaker(spk)}
+                    data-active={selectedSpeaker === spk}
+                    className="chip shrink-0"
                   >
-                    {/* Cabeçalho do Bloco: Orador, Pauta e Link com Tempo */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/60 pb-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Selo do Orador */}
-                        <button
-                          onClick={() => setSelectedSpeaker(spk)}
-                          title={`Filtrar falas de ${spk}`}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                            isCouncilor
-                              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
-                              : spk === "Mesa Diretora"
-                              ? "bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25"
-                              : "bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25"
-                          }`}
-                        >
-                          <User className="w-3.5 h-3.5" />
-                          <span>{spk}</span>
-                        </button>
+                    <span>{spk}</span>
+                    <span className="opacity-60">{speakerCounts[spk] || 0}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
-                        {/* Selo da Pauta Temática */}
-                        {d.tema && d.tema !== "Debates Gerais" && (
+            {/* Filtro 2: Tags de Pautas / Temas */}
+            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1">
+              <span className="mr-1 flex shrink-0 items-center gap-1 text-[14px] font-semibold text-ink-2">
+                Pauta:
+              </span>
+              <button
+                onClick={() => setSelectedTag("TODAS")}
+                data-active={selectedTag === "TODAS"}
+                className="chip shrink-0"
+              >
+                <span>Todas</span>
+                <span className="opacity-60">{tagCounts["TODAS"] || 0}</span>
+              </button>
+
+              {availableTags.map((t) => (
+                <button key={t} onClick={() => setSelectedTag(t)} data-active={selectedTag === t} className="chip shrink-0">
+                  <span>{t}</span>
+                  <span className="opacity-60">{tagCounts[t] || 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lista de Discursos / Falas */}
+          <div className="thin-scroll mt-3 flex-1 space-y-3 overflow-y-auto pb-3 pr-1">
+            {loading ? (
+              <div className="py-16 text-center text-[16px] text-ink-2">
+                Carregando transcrição detalhada da sessão...
+              </div>
+            ) : viewMode === "discursos" ? (
+              /* MODO DISCURSOS (PARÁGRAFOS HUMANOS FLUÍDOS) */
+              filteredDiscursos.length === 0 ? (
+                <div className="border-2 border-dashed border-ink py-12 text-center">
+                  <p className="font-display text-[22px] text-ink">Nenhum discurso encontrado com os filtros selecionados.</p>
+                  <p className="mt-1 text-[15px] text-ink-2">
+                    Tente redefinir o orador, selecionar outra pauta ou limpar o campo de busca.
+                  </p>
+                </div>
+              ) : (
+                filteredDiscursos.map((d) => {
+                  const spk = d.orador || "Mesa Diretora";
+                  const isCouncilor =
+                    spk.includes("Professora") ||
+                    spk.includes("Jullian") ||
+                    spk.includes("Capitão") ||
+                    spk.includes("Felipe") ||
+                    spk.includes("Badú") ||
+                    spk.includes("Lukão");
+
+                  return (
+                    <div
+                      key={d.id}
+                      className="group border-b border-ink/20 pb-4 pt-2 transition-colors hover:bg-yellow/15"
+                    >
+                      {/* Cabeçalho do Bloco: Orador, Pauta e Link com Tempo */}
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {/* Selo do Orador */}
                           <button
-                            onClick={() => setSelectedTag(d.tema)}
-                            title={`Filtrar apenas por ${d.tema}`}
-                            className="rounded-lg bg-amber-400/10 px-2 py-0.5 text-[11px] font-bold text-amber-300 border border-amber-400/25 hover:bg-amber-400/20 transition cursor-pointer"
+                            onClick={() => setSelectedSpeaker(spk)}
+                            title={`Filtrar falas de ${spk}`}
+                            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 px-2.5 py-1 text-[13px] font-bold transition-transform hover:-translate-y-0.5 ${speakerTone(spk, isCouncilor)}`}
                           >
-                            🏷️ {d.tema}
+                            <span>{spk}</span>
                           </button>
-                        )}
+
+                          {/* Selo da Pauta Temática */}
+                          {d.tema && d.tema !== "Debates Gerais" && (
+                            <button
+                              onClick={() => setSelectedTag(d.tema)}
+                              title={`Filtrar apenas por ${d.tema}`}
+                              className="cursor-pointer rounded-sm bg-yellow px-2 py-1 text-[13px] font-bold text-ink transition-transform hover:-translate-y-0.5"
+                            >
+                              {d.tema}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Timestamp com Play no YouTube */}
+                        <a
+                          href={d.youtubeLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Ouvir este trecho na íntegra no YouTube"
+                          className="group/btn tabular inline-flex items-center gap-1.5 rounded-sm border-2 border-red px-2.5 py-1 text-[13px] font-bold text-red transition-colors hover:bg-red hover:text-white"
+                        >
+                          <span>
+                            {d.timeStartStr} → {d.timeEndStr}
+                          </span>
+                          <span className="text-[10px] opacity-80">({d.durationSec}s)</span>
+                          <ExternalLink className="h-3 w-3 opacity-70 transition group-hover/btn:translate-x-0.5" />
+                        </a>
                       </div>
 
-                      {/* Timestamp com Play no YouTube */}
-                      <a
-                        href={d.youtubeLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Ouvir este trecho na íntegra no YouTube"
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-2.5 py-1 text-xs font-mono font-bold text-red-400 hover:text-red-300 transition group/btn"
-                      >
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{d.timeStartStr} → {d.timeEndStr}</span>
-                        <span className="text-[10px] text-red-400/80 font-sans">({d.durationSec}s)</span>
-                        <ExternalLink className="w-3 h-3 opacity-70 group-hover/btn:translate-x-0.5 transition" />
-                      </a>
+                      {/* Texto Fluído e Contínuo do Discurso */}
+                      <p className="max-w-[70ch] select-text text-[17px] leading-[1.6] text-ink">&ldquo;{d.text}&rdquo;</p>
                     </div>
-
-                    {/* Texto Fluído e Contínuo do Discurso */}
-                    <p className="text-sm text-slate-200 leading-relaxed select-text font-normal pl-0.5">
-                      "{d.text}"
-                    </p>
-                  </div>
-                );
-              })
-            )
-          ) : (
-            /* MODO LINHA POR LINHA (LEGENDAS ISOLADAS) */
+                  );
+                })
+              )
+            ) : /* MODO LINHA POR LINHA (LEGENDAS ISOLADAS) */
             filteredLinhas.length === 0 ? (
-              <div className="py-12 text-center rounded-2xl bg-slate-950/50 border border-slate-800">
-                <MessageSquare className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                <p className="text-xs font-semibold text-slate-400">
-                  Nenhuma fala encontrada com os filtros selecionados.
-                </p>
+              <div className="border-2 border-dashed border-ink py-12 text-center">
+                <p className="font-display text-[22px] text-ink">Nenhuma fala encontrada com os filtros selecionados.</p>
               </div>
             ) : (
               filteredLinhas.map((fala, idx) => {
@@ -629,82 +554,66 @@ export const SessaoDetailModal: React.FC<SessaoDetailModalProps> = ({
                 return (
                   <div
                     key={idx}
-                    className="group rounded-2xl border border-slate-800/90 bg-slate-950/60 p-3 hover:border-slate-700 hover:bg-slate-950 transition flex flex-col sm:flex-row items-start gap-3"
+                    className="flex flex-col items-start gap-3 border-b border-ink/15 py-2.5 transition-colors hover:bg-yellow/15 sm:flex-row"
                   >
-                    <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-2 sm:gap-1.5">
+                    <div className="flex shrink-0 items-center gap-2 sm:w-28 sm:flex-col sm:items-start sm:gap-1.5">
                       <a
                         href={fala.youtubeLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Ouvir este trecho no YouTube"
-                        className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-2 py-1 text-[11px] font-mono font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition"
+                        className="tabular inline-flex items-center gap-1 text-[13px] font-bold text-red hover:underline"
                       >
-                        <Clock className="w-3 h-3" />
                         <span>{fala.timeStr}</span>
-                        <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                        <ExternalLink className="h-2.5 w-2.5 opacity-60" />
                       </a>
 
                       {fala.tema && fala.tema !== "Debates Gerais" && (
                         <button
                           onClick={() => setSelectedTag(fala.tema)}
-                          className="rounded-md bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-bold text-amber-300 border border-amber-400/20 hover:bg-amber-400/20 transition cursor-pointer text-left"
+                          className="cursor-pointer rounded-sm bg-yellow px-1.5 py-0.5 text-left text-[12px] font-bold text-ink"
                         >
-                          🏷️ {fala.tema}
+                          {fala.tema}
                         </button>
                       )}
                     </div>
 
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <button
-                          onClick={() => setSelectedSpeaker(spk)}
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
-                            isCouncilor
-                              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
-                              : spk === "Mesa Diretora"
-                              ? "bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25"
-                              : "bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25"
-                          }`}
-                        >
-                          <User className="w-2.5 h-2.5" />
-                          <span>{spk}</span>
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-slate-300 leading-relaxed select-text">
-                        "{fala.text}"
-                      </p>
+                      <button
+                        onClick={() => setSelectedSpeaker(spk)}
+                        className={`mb-1 inline-flex cursor-pointer items-center gap-1 rounded-sm border px-2 py-0.5 text-[12px] font-bold ${speakerTone(spk, isCouncilor)}`}
+                      >
+                        <span>{spk}</span>
+                      </button>
+                      <p className="select-text text-[15px] leading-relaxed text-ink-2">&ldquo;{fala.text}&rdquo;</p>
                     </div>
                   </div>
                 );
               })
-            )
-          )}
+            )}
+          </div>
         </div>
 
         {/* Rodapé do Modal */}
-        <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t-2 border-ink px-5 py-3 text-[13px] text-ink-2 sm:px-7">
           <span>
             {viewMode === "discursos" ? (
               <>
-                Exibindo <strong>{filteredDiscursos.length}</strong> intervenções fluídas estruturadas (a partir de{" "}
-                <strong>{fullTranscripts.length}</strong> legendas do YouTube)
+                Exibindo <strong className="text-ink">{filteredDiscursos.length}</strong> intervenções fluídas estruturadas (a
+                partir de <strong className="text-ink">{fullTranscripts.length}</strong> legendas do YouTube)
               </>
             ) : (
               <>
-                Exibindo <strong>{filteredLinhas.length}</strong> de{" "}
-                <strong>{fullTranscripts.length}</strong> frases curtas
+                Exibindo <strong className="text-ink">{filteredLinhas.length}</strong> de{" "}
+                <strong className="text-ink">{fullTranscripts.length}</strong> frases curtas
               </>
             )}
           </span>
-          <button
-            onClick={onClose}
-            className="rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
-          >
+          <Button onClick={onClose} variant="ink">
             Fechar
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 };

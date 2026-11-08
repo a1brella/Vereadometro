@@ -1,6 +1,10 @@
+"use client";
+
 import React, { useState } from "react";
-import { X, Check, Copy, MessageCircle, ExternalLink, ShieldAlert } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { VereadorWithDetails } from "@/lib/types";
+import { InkImage, ModalShell } from "@/components/editorial/Editorial";
 
 interface ShareCardModalProps {
   vereador: VereadorWithDetails | null;
@@ -35,118 +39,88 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({ vereador, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl overflow-hidden">
-        {/* Botão Fechar */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
-          <ShieldAlert className="w-4 h-4 text-amber-400" />
+    <ModalShell onClose={onClose} label="Card compartilhável" className="max-w-lg">
+      <div className="thin-scroll max-h-[92vh] overflow-y-auto p-5 sm:p-7">
+        <div className="flex items-center gap-2 text-[14px] font-bold text-red">
           <span>Card Compartilhável para Redes e Grupos</span>
         </div>
 
-        <h2 className="text-xl font-black text-white">
-          Espalhe a verdade sobre os gastos públicos
-        </h2>
-        <p className="text-xs text-slate-400 mt-1">
+        <h2 className="mt-2 font-display text-[26px] leading-[1] text-ink sm:text-[30px]">Espalhe a verdade sobre os gastos públicos</h2>
+        <p className="mt-2 text-[16px] leading-snug text-ink-2">
           Compartilhe este extrato com amigos, familiares e grupos do bairro no WhatsApp.
         </p>
 
-        {/* Visual do Card Estilo Story / Print */}
-        <div className="mt-5 rounded-2xl border-2 border-slate-700 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-5 shadow-inner">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span className="text-xs font-black tracking-wider text-emerald-400 uppercase">
-              🏛️ Vereadômetro Juazeiro / CE
-            </span>
-            <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400 border border-red-500/30">
-              AUDITORIA 2026
-            </span>
+        {/* Visual do Card — cartaz de colagem */}
+        <div className="relative mt-6 overflow-hidden border-[1.5px] border-ink bg-blue text-paper">
+          <InkImage
+            src="/collage/xilogravura-ink.webp"
+            color="rgba(255, 201, 40, 0.22)"
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64"
+          />
+          <div className="relative flex items-center justify-between border-b border-paper/30 px-4 py-2.5">
+            <span className="text-[13px] font-bold text-yellow">Vereadômetro Juazeiro / CE</span>
+            <span className="stamp !text-[11px] text-paper">AUDITORIA 2026</span>
           </div>
 
-          <div className="mt-4 flex items-center gap-4">
-            <img
-              src={vereador.fotoUrl}
-              alt={vereador.nomeParlamentar}
-              className="h-16 w-16 rounded-2xl object-cover border-2 border-amber-500/60 shadow"
-            />
-            <div>
-              <span className="text-xs font-bold text-amber-400">{vereador.partido}</span>
-              <h3 className="text-lg font-black text-white">{vereador.nomeParlamentar}</h3>
-              <p className="text-xs text-slate-400">{vereador.nomeCompleto}</p>
+          <div className="relative flex items-end gap-4 px-4 pt-4">
+            <div className="duo h-[104px] w-[84px] shrink-0 rotate-[-3deg] border-2 border-paper duo-red">
+              <img src={vereador.fotoUrl} alt={vereador.nomeParlamentar} className="h-full w-full object-cover object-top" />
             </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2 text-left">
-            <div className="rounded-xl bg-slate-900/80 p-2.5 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-medium">Custo Mensal</span>
-              <div className="text-base font-black text-emerald-400">
-                {formatCurrency(vereador.totalGastoMes)}
-              </div>
-            </div>
-            <div className="rounded-xl bg-slate-900/80 p-2.5 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-medium">Gasto no Ano</span>
-              <div className="text-base font-black text-white">
-                {formatCurrency(vereador.totalGastoAno)}
-              </div>
+            <div className="min-w-0 pb-1">
+              <span className="text-[13px] font-bold text-yellow">{vereador.partido}</span>
+              <h3 className="font-display text-[24px] leading-[0.95]">{vereador.nomeParlamentar}</h3>
+              <p className="truncate text-[14px] text-paper/90">{vereador.nomeCompleto}</p>
             </div>
           </div>
 
-          <div className="mt-2 grid grid-cols-2 gap-2 text-left">
-            <div className="rounded-xl bg-slate-900/80 p-2.5 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-medium">Assessores</span>
-              <div className="text-base font-black text-sky-400">
-                {vereador.totalAssessores} contratados
-              </div>
+          <div className="relative mt-4 grid grid-cols-2 border-t border-paper/30">
+            <div className="border-b border-r border-paper/30 p-3">
+              <span className="text-[13px] text-paper/90">Custo Mensal</span>
+              <div className="font-display text-[19px] leading-none text-yellow">{formatCurrency(vereador.totalGastoMes)}</div>
             </div>
-            <div className="rounded-xl bg-slate-900/80 p-2.5 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-medium">Projetos Entregues</span>
-              <div className={`text-base font-black ${vereador.totalProjetos === 0 ? "text-red-400" : "text-amber-400"}`}>
-                {vereador.totalProjetos} {vereador.totalProjetos === 0 ? "⚠️ (Zero!)" : "projetos"}
+            <div className="border-b border-paper/30 p-3">
+              <span className="text-[13px] text-paper/90">Gasto no Ano</span>
+              <div className="font-display text-[19px] leading-none">{formatCurrency(vereador.totalGastoAno)}</div>
+            </div>
+            <div className="border-r border-paper/30 p-3">
+              <span className="text-[13px] text-paper/90">Assessores</span>
+              <div className="font-display text-[17px] leading-none">{vereador.totalAssessores} contratados</div>
+            </div>
+            <div className={`p-3 ${vereador.totalProjetos === 0 ? "bg-red" : ""}`}>
+              <span className="text-[13px] text-paper/90">Projetos Entregues</span>
+              <div className="font-display text-[17px] leading-none">
+                {vereador.totalProjetos} {vereador.totalProjetos === 0 ? "(Zero!)" : "projetos"}
               </div>
             </div>
           </div>
 
-          <div className="mt-3 text-center text-[10px] text-slate-400">
+          <div className="relative bg-ink px-4 py-2.5 text-center text-[12px] text-paper/85">
             Fonte: Dados abertos da Câmara Municipal e TCE-CE • vereadometro-juazeiro.com.br
           </div>
         </div>
 
         {/* Botões de Ação */}
-        <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm py-3 px-4 shadow-lg shadow-emerald-500/20 active:scale-95 transition"
-          >
-            <MessageCircle className="w-5 h-5 fill-slate-950" />
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button asChild size="lg" className="flex-1">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
             <span>Enviar no WhatsApp</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+            <ExternalLink className="h-3.5 w-3.5 opacity-70" />
           </a>
+          </Button>
 
-          <button
-            onClick={handleCopy}
-            className="flex items-center justify-center gap-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm py-3 px-4 active:scale-95 transition"
-          >
+          <Button onClick={handleCopy} variant="outline" size="lg">
             {copied ? (
               <>
-                <Check className="w-4 h-4 text-emerald-400" />
-                <span className="text-emerald-400 font-bold">Copiado!</span>
+                <span className="text-leaf">Copiado!</span>
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
                 <span>Copiar Texto</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </ModalShell>
   );
 };

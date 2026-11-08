@@ -1,5 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
-import { FileSignature, ShieldCheck, CheckCircle2, AlertCircle, Users, Scale } from "lucide-react";
+import { InkImage, PenArrow, PenUnderline, tornClip } from "@/components/editorial/Editorial";
+import { ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface IniciativaPopularSectionProps {
   initialCount?: number;
@@ -93,218 +100,229 @@ export const IniciativaPopularSection: React.FC<IniciativaPopularSectionProps> =
   };
 
   return (
-    <section id="iniciativa-popular" className="py-12 px-4 sm:px-6 relative">
-      <div className="mx-auto max-w-7xl">
-        {/* Card Principal da Iniciativa */}
-        <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/30 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-          {/* Decoração sutil */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <section id="iniciativa-popular" className="stack paper-blue scroll-mt-16 overflow-hidden text-paper">
+      {/* Colagem de fundo: xilogravura apagada, a estátua do Horto tingida de azul e o algodão do brasão */}
+      <InkImage
+        src="/collage/xilogravura-ink.webp"
+        color="rgba(242, 193, 46, 0.13)"
+        className="pointer-events-none absolute -left-32 -top-24 -z-10 h-[560px] w-[560px] rotate-[-10deg]"
+      />
+      <img
+        src="/collage/estatua-horto-ht.webp"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute -bottom-8 right-[-3%] -z-10 hidden w-[340px] opacity-90 mix-blend-luminosity lg:block xl:w-[400px]"
+      />
+      <img
+        src="/collage/algodao.webp"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute -bottom-10 left-[52%] -z-10 hidden w-[120px] rotate-[-14deg] lg:block"
+      />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Coluna Esquerda: Texto e Termômetro */}
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-400 mb-4">
-                <Scale className="w-3.5 h-3.5" />
-                <span>PROJETO DE LEI DE INICIATIVA POPULAR • LEI ORGÂNICA</span>
+      <div className="page section-y relative">
+        <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-14">
+          {/* Coluna Esquerda: Texto e Termômetro */}
+          <div className="lg:col-span-7">
+            <p className="font-type text-[14px] font-bold uppercase text-ink">
+              <span className="tag-hl">Projeto de Lei de Iniciativa Popular • Lei Orgânica</span>
+            </p>
+
+            <h2 className="mt-5" data-reveal>
+              <span className="relative inline-block">
+                <span className="h-section block text-yellow">Projeto Trava-Salário:</span>
+                <PenUnderline className="absolute -bottom-3 left-0 h-4 w-[92%]" color="var(--color-paper)" />
+              </span>
+              <span className="mt-7 block font-type text-[clamp(24px,2.8vw,36px)] font-bold leading-[1.25] text-ink">
+                <span className="marker">Vereador não pode aumentar o próprio salário</span>
+              </span>
+            </h2>
+
+            <p className="mt-6 max-w-[58ch] font-type text-[17px] leading-[1.65] text-paper">
+              Pela Constituição Federal e Lei Orgânica de Juazeiro do Norte, os cidadãos podem apresentar projetos de lei com{" "}
+              <strong className="marker text-ink">5.000 assinaturas de eleitores (1% do eleitorado)</strong>. Nossa proposta
+              proíbe qualquer aumento de remuneração de vereadores acima da inflação oficial e sem plebiscito prévio.
+            </p>
+
+            {/* Termômetro de assinaturas */}
+            <div className="mt-10 border-t-[3px] border-paper/80 pt-6" data-reveal>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <span className="inline-block bg-paper px-2.5 py-1 font-type text-[15px] font-bold text-ink">
+                    Termômetro de Assinaturas
+                  </span>
+                  <div className="mt-3 flex flex-wrap items-baseline gap-x-3">
+                    <span className="bg-yellow px-2 font-display text-[clamp(48px,5.4vw,84px)] leading-[1] text-ink">
+                      {currentTotal.toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-[18px] font-bold">de {targetCount.toLocaleString("pt-BR")} eleitores</span>
+                  </div>
+                </div>
+                <div className="relative border-l-2 border-paper/30 pl-6 text-right">
+                  <span className="font-display text-[clamp(48px,5.4vw,84px)] leading-[1] text-yellow">{percentage}%</span>
+                  <p className="text-[15px]">da meta legal</p>
+                </div>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                PROJETO TRAVA-SALÁRIO:{" "}
-                <span className="text-emerald-400">
-                  Vereador não pode aumentar o próprio salário
+              {/* Barra de Progresso */}
+              <div className="relative mt-6">
+                <Progress value={percentage} aria-label={`${percentage}% da meta legal`} />
+                <div className="pointer-events-none absolute inset-0 flex justify-between px-[2px]">
+                  {Array.from({ length: 11 }).map((_, i) => (
+                    <span key={i} className={`w-px self-end bg-ink ${i % 2 === 0 ? "h-full" : "h-1/2"} opacity-30`} />
+                  ))}
+                </div>
+              </div>
+              <div className="tabular mt-2 flex justify-between text-[13px] font-semibold text-paper/90">
+                {[0, 1000, 2000, 3000, 4000, 5000].map((n) => (
+                  <span key={n}>{n.toLocaleString("pt-BR")}</span>
+                ))}
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[15px]">
+                <span className="bg-white/10 px-2 py-1 font-type font-bold">
+                  Faltam {Math.max(0, targetCount - currentTotal).toLocaleString("pt-BR")} assinaturas
                 </span>
-              </h2>
-
-              <p className="mt-3 text-sm sm:text-base text-slate-300">
-                Pela Constituição Federal e Lei Orgânica de Juazeiro do Norte, os cidadãos podem apresentar projetos de lei com <strong>5.000 assinaturas de eleitores (1% do eleitorado)</strong>. Nossa proposta proíbe qualquer aumento de remuneração de vereadores acima da inflação oficial e sem plebiscito prévio.
-              </p>
-
-              {/* Termômetro Visual de Assinaturas */}
-              <div className="mt-6 rounded-2xl bg-slate-950/80 border border-slate-800 p-4 sm:p-5">
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <span className="text-xs uppercase font-bold tracking-wider text-slate-400">
-                      Termômetro de Assinaturas
-                    </span>
-                    <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
-                      {currentTotal.toLocaleString("pt-BR")}{" "}
-                      <span className="text-sm font-normal text-slate-400">
-                        de {targetCount.toLocaleString("pt-BR")} eleitores
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-black text-emerald-400">
-                      {percentage}%
-                    </span>
-                    <p className="text-[11px] text-slate-400">da meta legal</p>
-                  </div>
-                </div>
-
-                {/* Barra de Progresso */}
-                <div className="mt-3 h-4 w-full rounded-full bg-slate-800 p-0.5 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 shadow-lg shadow-emerald-500/50 transition-all duration-700"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-slate-400" />
-                    Faltam {Math.max(0, targetCount - currentTotal).toLocaleString("pt-BR")} assinaturas
-                  </span>
-                  <span className="text-emerald-400 font-semibold">
-                    Etapa 1: Protocolo na Mesa Diretora
-                  </span>
-                </div>
+                <span className="flex items-center gap-2">
+                  <PenArrow className="hidden h-7 w-14 sm:block" color="var(--color-yellow)" />
+                  <span className="tag-hl font-bold">Etapa 1: Protocolo na Mesa Diretora</span>
+                </span>
               </div>
             </div>
+          </div>
 
-            {/* Coluna Direita: Formulário de Assinatura Cívica */}
-            <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-slate-700 bg-slate-950/90 p-5 sm:p-6 shadow-xl backdrop-blur">
-                {signed ? (
-                  <div className="py-8 text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 mb-3">
-                      <CheckCircle2 className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-black text-white">
-                      Assinatura Confirmada!
-                    </h3>
-                    <p className="mt-2 text-xs text-slate-300">
-                      Seu título eleitoral foi validado e contabilizado no projeto de lei popular de Juazeiro do Norte.
-                    </p>
-                    <div className="mt-4 rounded-xl bg-slate-900 p-3 text-xs text-slate-400">
-                      Enviamos a confirmação protocolar com o resumo do projeto para seu WhatsApp.
-                    </div>
+          {/* Coluna Direita: Formulário de Assinatura Cívica — abaixo-assinado */}
+          <div className="lg:col-span-5" data-reveal style={{ ["--d" as string]: "150ms" }}>
+            <div className="relative rotate-[-1deg] drop-shadow-[0_6px_10px_rgba(21,19,17,0.2)]">
+              <div className="tape -top-3 left-1/2 z-10 -translate-x-1/2 rotate-[-3deg]" />
+            <div className="relative bg-sheet p-6 text-ink sm:p-8" style={{ clipPath: tornClip(65, "trbl", 6, 36) }}>
+              
+              {signed ? (
+                <div className="py-8 text-center">
+                  <div className="stamp mx-auto mb-5 rotate-[-4deg] text-red">
+                    Validado
                   </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 mb-3">
-                      <FileSignature className="w-5 h-5 text-emerald-400" />
-                      <h3 className="text-lg font-bold text-white">
+                  <h3 className="font-display text-[28px] text-ink sm:text-[34px]">Assinatura Confirmada!</h3>
+                  <p className="mt-3 text-[17px] leading-snug text-ink-2">
+                    Seu título eleitoral foi validado e contabilizado no projeto de lei popular de Juazeiro do Norte.
+                  </p>
+                  <div className="mt-5 border-t border-dashed border-ink pt-4 text-[15px] text-ink-2">
+                    Enviamos a confirmação protocolar com o resumo do projeto para seu WhatsApp.
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-start justify-between gap-3 border-b-2 border-ink pb-4">
+                    <div>
+                      <h3 className="relative font-display text-[30px] leading-[0.95] text-ink sm:text-[36px]">
                         Assine Digitalmente o Projeto
                       </h3>
                     </div>
-                    <p className="text-xs text-slate-400 mb-4">
-                      Dados eleitorais oficiais exigidos pelo Tribunal Regional Eleitoral (TRE-CE) para validação de iniciativa popular.
-                    </p>
+                  </div>
+                  <p className="mt-3 text-[15px] leading-snug text-ink-2">
+                    Dados eleitorais oficiais exigidos pelo Tribunal Regional Eleitoral (TRE-CE) para validação de iniciativa popular.
+                  </p>
 
-                    {errorMsg && (
-                      <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-950/60 border border-red-700/60 p-2.5 text-xs text-red-300">
-                        <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                        <span>{errorMsg}</span>
-                      </div>
-                    )}
+                  {errorMsg && (
+                    <div className="mt-4 flex items-center gap-2 rounded-sm border-2 border-red bg-red/10 p-3 text-[14px] font-medium text-red-deep">
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
 
-                    <form onSubmit={handleSubmit} className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                          Nome Completo (como no Título)
-                        </label>
-                        <input
+                  <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+                    <Label className="grid gap-2">
+                      <span>Nome Completo (como no Título)</span>
+                      <Input
+                        type="text"
+                        required
+                        placeholder="Ex: Cícero da Silva Santos"
+                        value={nomeCompleto}
+                        onChange={(e) => setNomeCompleto(e.target.value)}
+                      />
+                    </Label>
+
+                    <Label className="grid gap-2">
+                      <span>Número do Título de Eleitor</span>
+                      <Input
+                        type="text"
+                        required
+                        inputMode="numeric"
+                        placeholder="0000 0000 0000"
+                        value={tituloEleitor}
+                        onChange={handleTituloChange}
+                        className="tabular"
+                      />
+                    </Label>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <Label className="grid gap-2">
+                        <span>Zona Eleitoral</span>
+                        <Select value={zonaEleitoral} onValueChange={setZonaEleitoral}>
+                          <SelectTrigger className="w-full" aria-label="Zona Eleitoral">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="028">Zona 28 (Juazeiro)</SelectItem>
+                            <SelectItem value="119">Zona 119 (Juazeiro)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Label>
+
+                      <Label className="grid gap-2">
+                        <span>Seção Eleitoral</span>
+                        <Input
                           type="text"
                           required
-                          placeholder="Ex: Cícero da Silva Santos"
-                          value={nomeCompleto}
-                          onChange={(e) => setNomeCompleto(e.target.value)}
-                          className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                          placeholder="Ex: 0142"
+                          value={secaoEleitoral}
+                          onChange={(e) => setSecaoEleitoral(e.target.value)}
                         />
-                      </div>
+                      </Label>
+                    </div>
 
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                          Número do Título de Eleitor
-                        </label>
-                        <input
+                    <div className="grid grid-cols-2 gap-4">
+                      <Label className="grid gap-2">
+                        <span>Bairro</span>
+                        <Input
                           type="text"
                           required
-                          placeholder="0000 0000 0000"
-                          value={tituloEleitor}
-                          onChange={handleTituloChange}
-                          className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                          placeholder="Ex: Pirajá"
+                          value={bairro}
+                          onChange={(e) => setBairro(e.target.value)}
                         />
-                      </div>
+                      </Label>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                            Zona Eleitoral
-                          </label>
-                          <select
-                            value={zonaEleitoral}
-                            onChange={(e) => setZonaEleitoral(e.target.value)}
-                            className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
-                          >
-                            <option value="028">Zona 28 (Juazeiro)</option>
-                            <option value="119">Zona 119 (Juazeiro)</option>
-                          </select>
-                        </div>
+                      <Label className="grid gap-2">
+                        <span>WhatsApp</span>
+                        <Input
+                          type="text"
+                          required
+                          inputMode="tel"
+                          placeholder="(88) 99999-9999"
+                          value={whatsapp}
+                          onChange={handlePhoneChange}
+                        />
+                      </Label>
+                    </div>
 
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                            Seção Eleitoral
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="Ex: 0142"
-                            value={secaoEleitoral}
-                            onChange={(e) => setSecaoEleitoral(e.target.value)}
-                            className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                          />
-                        </div>
-                      </div>
+                    <div className="flex items-start gap-2 pt-1 text-[14px] leading-snug text-ink-2">
+                      <span>Declaro ser eleitor em Juazeiro do Norte e autorizo a inclusão do meu nome na petição popular.</span>
+                    </div>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                            Bairro
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="Ex: Pirajá"
-                            value={bairro}
-                            onChange={(e) => setBairro(e.target.value)}
-                            className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-300 uppercase mb-1">
-                            WhatsApp
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            placeholder="(88) 99999-9999"
-                            value={whatsapp}
-                            onChange={handlePhoneChange}
-                            className="w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-1.5 pt-1 text-[10px] text-slate-400">
-                        <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-400 mt-0.5" />
-                        <span>
-                          Declaro ser eleitor em Juazeiro do Norte e autorizo a inclusão do meu nome na petição popular.
-                        </span>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/20 active:scale-95 disabled:opacity-50 transition"
-                      >
-                        {loading ? "Validando assinatura..." : "✍️ ASSINAR PROJETO DE LEI"}
-                      </button>
-                    </form>
-                  </>
-                )}
-              </div>
+<div className="rounded-[14px] outline-offset-4 outline-blue has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="group flex min-h-[58px] w-full cursor-pointer items-center justify-center gap-3 bg-red font-display text-[22px] text-white rounded-[12px] shadow-[inset_0_-3px_0_rgba(0,0,0,0.22),0_4px_10px_-2px_rgba(21,19,17,0.28)] transition-[background-color,color,transform,box-shadow] duration-150 hover:-translate-y-0.5 active:translate-y-px active:shadow-[inset_0_-1px_0_rgba(0,0,0,0.22),0_1px_3px_rgba(21,19,17,0.2)] hover:bg-red-deep focus-visible:outline-none disabled:opacity-60"
+                    >
+                      {loading ? "Validando assinatura..." : "ASSINAR PROJETO DE LEI"}
+                      <ArrowRight className="size-6 transition-transform group-hover:translate-x-1" aria-hidden />
+                    </button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
             </div>
           </div>
         </div>

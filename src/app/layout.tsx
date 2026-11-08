@@ -1,20 +1,39 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Anton, Archivo, Courier_Prime, Gochi_Hand } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { TornFilters } from "@/components/editorial/Editorial";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/* Uma família só: Archivo larga e pesada nos títulos, largura normal no texto. */
+const archivo = Archivo({
+  variable: "--font-text",
+  subsets: ["latin"],
+  axes: ["wdth"],
+});
+
+/* Títulos: letra de cartaz condensada. */
+const anton = Anton({
+  variable: "--font-anton",
+  weight: "400",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+/* Texto de apoio: máquina de escrever de redação. */
+const typewriter = Courier_Prime({
+  variable: "--font-type",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
+
+/* Bilhetes escritos à mão na colagem. */
+const hand = Gochi_Hand({
+  variable: "--font-hand",
+  weight: "400",
   subsets: ["latin"],
 });
 
 export const viewport: Viewport = {
-  themeColor: "#020617",
+  themeColor: "#151311",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -27,7 +46,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Vereadômetro Juazeiro",
   },
   icons: {
@@ -65,8 +84,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}>
-      <body className="min-h-full bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <html
+      lang="pt-BR"
+      className={`${archivo.variable} ${anton.variable} ${typewriter.variable} ${hand.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col font-sans">
+        <TornFilters />
         <ServiceWorkerRegister />
         {children}
       </body>
