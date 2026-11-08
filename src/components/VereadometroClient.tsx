@@ -366,7 +366,7 @@ export const VereadometroClient: React.FC<VereadometroClientProps> = ({
               Créditos das imagens da colagem
             </summary>
             <p className="mt-3 max-w-4xl">
-              Imagens do Wikimedia Commons, tratadas (recorte, retícula, duotom). Padre Cícero, c. 1924 — domínio público.
+              Imagens do Wikimedia Commons, tratadas (recorte, retícula, duotom). Padre Cícero, c. 1914 — domínio público.
               Estátua do Padre Cícero no Horto e vista de Juazeiro do Norte — Allan Patrick, CC BY-SA 2.0. Romeiros e
               Reisado — Danielle Pereira, CC BY 2.0. Romeiro com vela — Zizomegouveia, CC BY-SA 4.0. Casa Museu Padre
               Cícero — Fabiobarros, CC BY-SA 4.0. Basílica de N. Sra. das Dores — Paróquia Basílica Santuário, CC0. Flor

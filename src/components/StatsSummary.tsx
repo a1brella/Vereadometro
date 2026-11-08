@@ -153,7 +153,7 @@ export const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, onOpenLeadMod
 
           {/* Pilha direita: a cidade impressa, papel vermelho e o Padre Cícero */}
           <div
-            aria-label="Colagem: a cidade de Juazeiro do Norte e o Padre Cícero em 1924"
+            aria-label="Colagem: a cidade de Juazeiro do Norte e o Padre Cícero em 1914"
             role="img"
             className="absolute -bottom-[6%] right-[-4vw] top-[5%] hidden w-[30vw] max-w-[520px] lg:block"
           >
@@ -176,7 +176,7 @@ export const StatsSummary: React.FC<StatsSummaryProps> = ({ stats, onOpenLeadMod
               />
             </Layer>
             <Layer depth={10} className="bottom-[46%] left-[0%]" style={{ rotate: "-4deg" }}>
-              <p className="tag-paper font-hand text-[16px]">Pe. Cícero, c. 1924</p>
+              <p className="tag-paper font-hand text-[16px]">Pe. Cícero, c. 1914</p>
             </Layer>
           </div>
         </div>
